@@ -1,0 +1,46 @@
+{
+  "name": "@arcadia-network/react",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "build": "tsx scripts/build.ts"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.1.10",
+    "eslint": "^9.30.0",
+    "fs-extra": "^11.3.0",
+    "rollup": "^4.45.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "tsx": "^4.20.3",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@arcadia-network/utils": "workspace:*",
+    "@arcadia-network/intent": "workspace:*",
+    "@arcadia-network/wagmi-adapter": "workspace:*",
+    "@arcadia-network/viem-adapter": "workspace:*"
+  },
+  "peerDependencies": {
+    "@arcadia-network/utils": "workspace:*",
+    "@arcadia-network/wagmi-adapter": "workspace:*",
+    "@arcadia-network/viem-adapter": "workspace:*",
+    "@wagmi/core": "^2.19.0",
+    "react": "^19.1.1",
+    "viem": "^2.31.7",
+    "@tanstack/react-query": "5.85.0",
+    "wagmi": "2.16.3"
+  }
+}
