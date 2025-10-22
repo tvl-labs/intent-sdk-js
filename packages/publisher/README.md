@@ -63,7 +63,7 @@ import { mainnet } from "viem/chains";
 
 const chains = [mainnet];
 
-defineConfig({
+const config = defineConfig({
   adapter: new ViemWalletAdapter(provider, chains),
   chains: chains.map((c) => convertViemChainToNativeChain(c)),
 });
@@ -75,7 +75,6 @@ defineConfig({
 - `@intents-sdk/utils` — Shared types, utilities, ABIs, Medusa helpers, and configuration (`defineConfig`).
 - `@intents-sdk/viem-adapter` — Wallet adapter for viem providers.
 - `@intents-sdk/wagmi-adapter` — Wallet adapter and utilities for wagmi.
-- `@intents-sdk/react` — React hooks and components for integrating Arcadia in React apps.
 
 ## Concepts
 
