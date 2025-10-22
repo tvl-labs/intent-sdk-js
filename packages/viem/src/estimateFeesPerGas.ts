@@ -1,5 +1,5 @@
 import { type Address, type Chain, createPublicClient, http } from "viem";
-import type { ContractCaller } from "@arcadia-network/utils";
+import type { ContractCaller } from "@intents-sdk/utils";
 
 export async function estimateFeesPerGas(
   chain: Chain,

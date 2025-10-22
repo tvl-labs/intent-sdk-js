@@ -62,7 +62,7 @@ function overrideLocalDependenciesVersion(dependencies?: Record<string, string>)
   return Object.entries(dependencies || {}).reduce((acc, [key, value]) => {
     return {
       ...acc,
-      [key]: key.startsWith("@arcadia-network/") ? repoPkg.version : value,
+      [key]: key.startsWith("@intents-sdk/") ? repoPkg.version : value,
     };
   }, {});
 }
@@ -82,7 +82,7 @@ function buildPackageJson() {
   // Filter out internal dependencies from dependencies for publishing
   const filteredDependencies = Object.entries(pkg.dependencies || {}).reduce(
     (acc, [key, value]) => {
-      if (!key.startsWith("@arcadia-network/")) {
+      if (!key.startsWith("@intents-sdk/")) {
         acc[key] = value as string;
       }
       return acc;

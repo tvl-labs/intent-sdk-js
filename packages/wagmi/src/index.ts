@@ -4,9 +4,9 @@ import {
   type ContractCaller,
   type Eip1193Provider,
   type WalletAdapter,
-} from "@arcadia-network/utils";
+} from "@intents-sdk/utils";
 import { type Config, getAccount, readContract, switchChain, writeContract } from "@wagmi/core";
-import { estimateFeesPerGas } from "@arcadia-network/viem-adapter";
+import { estimateFeesPerGas } from "@intents-sdk/viem-adapter";
 
 export class WagmiAdapter implements WalletAdapter {
   protected readonly provider: Eip1193Provider | undefined;

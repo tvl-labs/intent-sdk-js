@@ -1,5 +1,5 @@
 import { type Chain, createPublicClient, createWalletClient, custom, http, toHex } from "viem";
-import type { ContractCaller, Eip1193Provider, WalletAdapter } from "@arcadia-network/utils";
+import type { ContractCaller, Eip1193Provider, WalletAdapter } from "@intents-sdk/utils";
 import { convertViemChainToNativeChain } from "./convertViemChainToNativeChain";
 import { estimateFeesPerGas } from "./estimateFeesPerGas";
 

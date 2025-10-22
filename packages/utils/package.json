@@ -1,5 +1,5 @@
 {
-  "name": "@arcadia-network/utils",
+  "name": "@intents-sdk/utils",
   "version": "0.0.0",
   "private": true,
   "exports": {

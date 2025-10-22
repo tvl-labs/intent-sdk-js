@@ -11,7 +11,13 @@ const pkg = fs.readJSONSync("package.json");
 const repoPkg = fs.readJSONSync("../../package.json");
 const outDir = "dist";
 
-const entries = [{ input: "src/index.ts", name: "index" }];
+const entries = [
+  { input: "src/index.ts", name: "index" },
+  { input: "src/bridge/index.ts", name: "bridge" },
+  { input: "src/intent/index.ts", name: "intent" },
+  { input: "src/lp/index.ts", name: "lp" },
+  { input: "src/mtoken/index.ts", name: "mtoken" },
+];
 
 const sourcemap = false;
 
@@ -21,6 +27,7 @@ async function buildJS() {
       input: entry.input,
       external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
       plugins: [nodeResolve(), commonjs(), json(), typescript({ tsconfig: "./tsconfig.json", declaration: false })],
+      treeshake: false,
     });
 
     await bundle.write({
@@ -58,37 +65,17 @@ async function buildDTS() {
   }
 }
 
-function overrideLocalDependenciesVersion(dependencies?: Record<string, string>) {
-  return Object.entries(dependencies || {}).reduce((acc, [key, value]) => {
-    return {
-      ...acc,
-      [key]: key.startsWith("@intents-sdk/") ? repoPkg.version : value,
-    };
-  }, {});
-}
-
 function buildPackageJson() {
   const exports = {};
 
   for (const entry of entries) {
     const key = entry.name === "index" ? "." : `./${entry.name}`;
     exports[key] = {
-      import: `./${entry.name}.mjs`,
+      import: entry.name === "index" ? "./index.mjs" : `./${entry.name}/index.mjs`,
       require: `./${entry.name}.cjs`,
       types: `./${entry.name}.d.ts`,
     };
   }
-
-  // Filter out internal dependencies from dependencies for publishing
-  const filteredDependencies = Object.entries(pkg.dependencies || {}).reduce(
-    (acc, [key, value]) => {
-      if (!key.startsWith("@intents-sdk/")) {
-        acc[key] = value as string;
-      }
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
 
   const minimalPkg = {
     name: pkg.name,
@@ -101,8 +88,13 @@ function buildPackageJson() {
     keywords: pkg.keywords,
     repository: pkg.repository,
     license: pkg.license,
-    peerDependencies: overrideLocalDependenciesVersion(pkg.peerDependencies),
-    dependencies: overrideLocalDependenciesVersion(filteredDependencies),
+    peerDependencies: pkg.peerDependencies,
+    dependencies: Object.entries<Record<string, string>>(pkg.dependencies ?? {}).reduce((acc, [key, value]) => {
+      return {
+        ...acc,
+        [key]: key.startsWith("@intents-sdk/") ? repoPkg.version : value,
+      };
+    }, {}),
   };
 
   fs.writeJSONSync(path.join(outDir, "package.json"), minimalPkg, {

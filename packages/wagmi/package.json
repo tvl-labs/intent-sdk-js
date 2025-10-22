@@ -1,5 +1,5 @@
 {
-  "name": "@arcadia-network/wagmi-adapter",
+  "name": "@intents-sdk/wagmi-adapter",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -29,12 +29,12 @@
     "typescript": "5.8.2"
   },
   "dependencies": {
-    "@arcadia-network/utils": "workspace:*",
-    "@arcadia-network/viem-adapter": "workspace:*"
+    "@intents-sdk/utils": "workspace:*",
+    "@intents-sdk/viem-adapter": "workspace:*"
   },
   "peerDependencies": {
-    "@arcadia-network/utils": "workspace:*",
-    "@arcadia-network/viem-adapter": "workspace:*",
+    "@intents-sdk/utils": "workspace:*",
+    "@intents-sdk/viem-adapter": "workspace:*",
     "@wagmi/core": "^2.19.0",
     "viem": "^2.31.7"
   }
