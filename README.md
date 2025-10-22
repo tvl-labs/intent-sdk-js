@@ -1,6 +1,6 @@
-# Intents JS SDK
+# Khalani Intents JavaScript SDK
 
-A comprehensive JavaScript SDK for interacting with the Intents protocol, providing seamless cross-chain token bridging and intent-based trading capabilities.
+A comprehensive JavaScript SDK for interacting with Khalani intents, providing seamless cross-chain token swaps and intent-driven trading capabilities.
 
 ## Installation
 
@@ -38,7 +38,7 @@ defineConfig({
       rpcUrls: ["https://eth.llamarpc.com"],
     },
   ],
-  medusaURL: "https://medusa.arcadia.khalani.network",
+  medusaURL: "please contact our team for this URL",
   contract: {
     assetReserves: { "0x1": "0x..." },
     mTokens: [
@@ -71,7 +71,7 @@ const config = defineConfig({
 
 ## Packages
 
-- `@intents-sdk/publisher` — Core client for building and executing intents, MToken deposit/withdraw, and bridge flows.
+- `@intents-sdk/publisher` — Core client for building and executing intents, token deposit/withdraw, and cross-chain flows.
 - `@intents-sdk/utils` — Shared types, utilities, ABIs, Medusa helpers, and configuration (`defineConfig`).
 - `@intents-sdk/viem-adapter` — Wallet adapter for viem providers.
 - `@intents-sdk/wagmi-adapter` — Wallet adapter and utilities for wagmi.
@@ -80,7 +80,7 @@ const config = defineConfig({
 
 ### Config
 
-All core actions—such as bridge, deposit, and withdraw—depend on a centralized configuration object called `UserConfig`. This configuration defines runtime environment, chain settings, contract addresses, and other essential parameters.
+All core actions such as swaps, deposit, and withdraw depend on a centralized configuration object called `UserConfig`. This configuration defines runtime environment, chain settings, contract addresses, and other essential parameters.
 
 - The SDK does not ship with built-in chain or contract information.
 - All supported chains, contract addresses, and token definitions must be explicitly set in your `defineConfig` call.
@@ -94,25 +94,22 @@ The `WalletAdapter` wraps an EIP-1193 provider and adds smart contract interacti
 
 ### Intent
 
-An intent is a result predicate expression for future settlement transactions: a statement that encodes invariants about state transitions while remaining agnostic about how those transitions are achieved.
+An intent is a predicate expression over future settlement transactions: a statement that encodes invariants about state transitions while remaining agnostic about how those transitions are achieved.
 
 - Learn more: https://khalani.gitbook.io/khalani-docs/concepts/intents-and-solvers#id-1.-what-is-an-intent
 
 ### MToken
 
-MTokens are wrapped versions of traditional tokens that enable cross-chain functionality. They maintain a 1:1 relationship with underlying tokens.
-
-- For cross-chain transactions or liquidity provisioning, deposits are converted to MToken first.
-- MToken decimals are 18, even if the source token uses fewer decimals (e.g., USDT has 6).
+MTokens are unified accounting units over tokens on any blockchain to enable cross-chain functionality. MToken decimals are 18, even if the source token uses fewer decimals (e.g., USDT has 6).
 
 ### chainId vs chains[]
 
-- `chainId` (number): Arcadia Hub ID for coordinating cross-chain operations.
+- `chainId` (number): Arcadia Chain ID for coordinating cross-chain operations.
 - `chains[]` (array): List of chain definitions your application supports, including RPC URLs, native currency details, and names. The SDK uses this to route requests to the correct network.
 
 ## Example
 
-Refine a bridge intent using the intent SDK and common utils:
+Refine a cross-chain bridge intent using the intent SDK and common utils:
 
 ```ts
 import { refineBridgeSwapIntent } from "@intents-sdk/publisher";
@@ -127,7 +124,7 @@ const [address] = await requestAccounts(config);
 const { Refinement: bridgeIntent } = await refineBridgeSwapIntent(config, address, mainnetUSDC, arbUSDC, amount);
 ```
 
-### Deposit with Intent (Recommended)
+### Deposit with Intents (Recommended)
 
 Authorize AssetReserves once, then deposit with intent:
 
@@ -140,7 +137,7 @@ await ensureERC20AllowanceToAssetReserves(config, mainnetUSDC, MAX_UINT_256, aut
 await depositERC20WithIntent(config, amount, bridgeIntent);
 ```
 
-### Bridge (Permit2 style)
+### Bridge with Permit2
 
 Use Permit2 to deposit and publish the intent:
 
@@ -155,9 +152,9 @@ await consumeIterator(
 );
 ```
 
-### Bridge (Traditional style)
+### Bridge with token approvals
 
-Use traditional approval/deposit flow:
+Use the approval/deposit flow:
 
 ```ts
 import { bridgeSwapGenerator } from "@intents-sdk/publisher";
@@ -170,7 +167,7 @@ await consumeIterator(
 );
 ```
 
-### Deposit (Quick way)
+### 1-shot Deposits
 
 One-shot deposit generator:
 
@@ -182,7 +179,7 @@ const amount = 1000n;
 await consumeIterator(depositMTokenGenerator(config, mainnetUSDC, amount));
 ```
 
-### Deposit (With signature, Permit2)
+### Signature Based Deposits
 
 Build EIP-712 typed data, sign, then deposit:
 
@@ -204,7 +201,7 @@ const signature = await signTypeDataV4(config, permit2.depositor, permit2.typedD
 await depositERC20WithSignature(config, mainnetUSDC, amount, permit2, signature);
 ```
 
-### Deposit (Traditional)
+### Approval Based Deposits
 
 Approve AssetReserves for an exact amount, then deposit:
 
@@ -219,7 +216,7 @@ await ensureERC20AllowanceToAssetReserves(config, mainnetUSDC, amount, author);
 await depositERC20Traditional(config, mainnetUSDC, amount);
 ```
 
-### Withdraw (Traditional)
+### Approval Based Withdraws
 
 Convert MToken back to the original token:
 
