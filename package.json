@@ -1,7 +1,7 @@
 {
   "name": "arcadia-sdk-js",
   "private": true,
-  "version": "0.0.6-beta-4",
+  "version": "0.0.1",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
