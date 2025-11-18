@@ -1,4 +1,4 @@
-import type { Address, BaseToken, UserConfig } from "@intents-sdk/utils";
+import { type Address, type BaseToken, toHex, type UserConfig } from "@intents-sdk/utils";
 import { FillStructureStr, type MedusaIntent, OutcomeAssetStructureStr } from "@intents-sdk/utils";
 import { getMTokenBySourceToken } from "@intents-sdk/utils";
 import { getDeadline, randomU256BigInt } from "@intents-sdk/utils";
@@ -42,7 +42,7 @@ import { convertSourceTokenAmountToMTokenAmount } from "@intents-sdk/utils";
  * ```
  */
 export function buildIntent(
-  config: Pick<UserConfig, "chainId" | "contract" | "adapter" | "experimental">,
+  config: Pick<UserConfig, "contract">,
   author: Address,
   sourceToken: BaseToken,
   destinationTokens: BaseToken[],
@@ -64,33 +64,16 @@ export function buildIntent(
     ? destMTokens.map(() => {
         const feeInBasisPoints = Math.floor(Number(feePercentage) * 1000);
         const scaledAmount = BigInt(feeInBasisPoints) * BigInt(10) ** BigInt(15);
-        return scaledAmount.toString();
+        return toHex(scaledAmount);
       })
-    : [mTokenAmount.toString()];
-  const timeRangFields = {
-    ...(config.experimental?.enabledTTLField
-      ? {
-          ttl: options?.validBefore ?? getDeadline(),
-        }
-      : {}),
-    ...(config.experimental?.enabledDeadlineField
-      ? {
-          deadline: options?.validBefore ?? getDeadline(),
-        }
-      : {}),
-    ...(!config.experimental?.enabledTTLField && !config.experimental?.enabledDeadlineField
-      ? {
-          validBefore: options?.validBefore ?? getDeadline(),
-          validAfter: options?.validAfter ?? "0",
-        }
-      : {}),
-  };
+    : [toHex(mTokenAmount)];
   return {
     author: author,
-    ...timeRangFields,
+    validBefore: options?.validBefore ?? getDeadline(),
+    validAfter: options?.validAfter ?? "0",
     nonce: nonce.toString(),
     srcMToken: srcMToken.address,
-    srcAmount: mTokenAmount.toString(),
+    srcAmount: toHex(mTokenAmount),
     outcome: {
       mAmounts,
       mTokens: destMTokens.map((x) => x.address),

@@ -1,6 +1,11 @@
 import type { Address, BaseToken, UserConfig } from "@intents-sdk/utils";
-import { getAssetReservesContractAddress, waitForTransactionReceiptWithChainId } from "@intents-sdk/utils";
-import { ERC20_ALLOWANCE, ERC20_APPROVE } from "@intents-sdk/utils";
+import {
+  getAssetReservesContractAddress,
+  waitForTransactionReceiptWithChainId,
+  readContract,
+  writeContract,
+} from "@intents-sdk/utils";
+import { ERC20_ALLOWANCE, ERC20_APPROVE } from "@intents-sdk/utils/abis";
 
 export async function ensureERC20AllowanceToAssetReserves(
   config: Pick<UserConfig, "adapter" | "chains" | "contract">,
@@ -13,12 +18,10 @@ export async function ensureERC20AllowanceToAssetReserves(
 ) {
   const wait = options?.wait ?? true;
   const assetReservesContractAddress = getAssetReservesContractAddress(config, sourceToken.chainId);
-  const allowance = await config.adapter.contractCaller.read<bigint>({
-    address: sourceToken.address,
+  const allowance = await readContract(config, sourceToken.address, sourceToken.chainId, {
+    abi: ERC20_ALLOWANCE,
     functionName: "allowance",
     args: [address, assetReservesContractAddress],
-    abi: ERC20_ALLOWANCE,
-    chainId: sourceToken.chainId,
   });
   if (allowance >= amount) {
     return { allowance };
@@ -26,12 +29,11 @@ export async function ensureERC20AllowanceToAssetReserves(
 
   // Insufficient allowance
   const value = amount - allowance;
-  const txHash = await config.adapter.contractCaller.write({
-    address: sourceToken.address,
+  const txHash = await writeContract(config, sourceToken.address, {
+    chainId: sourceToken.chainId,
     functionName: "approve",
     args: [assetReservesContractAddress, value],
     abi: ERC20_APPROVE,
-    chainId: sourceToken.chainId,
   });
   if (wait) {
     const receipt = await waitForTransactionReceiptWithChainId(config, sourceToken.chainId, txHash);

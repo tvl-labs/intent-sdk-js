@@ -5,3 +5,4 @@ export * from "./adapter";
 export * from "./utils";
 export * from "./token";
 export * from "./medusa";
+export * from "./ethRPC";

@@ -1,7 +1,7 @@
 {
-  "name": "arcadia-sdk-js",
+  "name": "intent-sdk-js",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.2.1",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

@@ -4,7 +4,7 @@ import { delay } from "./delay";
 import { getERC20Balance } from "./getERC20Balance";
 
 export async function waitForErc20BalanceUpdate(
-  config: Pick<UserConfig, "adapter" | "chainId" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "chains">,
   token: BaseToken,
   expectedBalance: bigint,
   address: Address,

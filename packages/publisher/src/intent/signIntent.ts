@@ -20,7 +20,6 @@ import { signTypeDataV4 } from "@intents-sdk/utils";
  * @param address - The address of the signer (typically the same as `intent.author`).
  * @param intent - The full `MedusaIntent` object to be signed.
  * @param options - Optional behavior controls.
- * @param options.ignoreDomain - If true, skips including the EIP-712 domain. Useful for testing or off-chain flows. Default: false.
  *
  * @returns A Promise that resolves to the signature as a `Hex` string.
  *
@@ -33,17 +32,12 @@ import { signTypeDataV4 } from "@intents-sdk/utils";
  * @remarks
  * - Internally uses `eth_signTypedData_v4`, which is supported by most modern wallets.
  * - Converts `fillStructure` and `outcomeAssetStructure` enums to numeric (uint8) before signing.
- * - If `ignoreDomain` is true, the resulting signature will not be domain-separated and may fail on-chain verification.
  */
 export async function signIntent(
-  config: Pick<UserConfig, "adapter" | "contract" | "experimental">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "experimental">,
   address: Address,
   intent: MedusaIntent,
-  options?: {
-    ignoreDomain?: boolean;
-  },
 ) {
-  const ignoreDomain = options?.ignoreDomain ?? config.experimental?.ignoreSignIntentDomain ?? false;
   const typeDataIntent = {
     ...intent,
     outcome: {
@@ -52,21 +46,12 @@ export async function signIntent(
       outcomeAssetStructure: OutcomeAssetStructureStringToEnum[intent.outcome.outcomeAssetStructure].toString(),
     },
   };
-  const timeRangFields = [
-    ...(config.experimental?.enabledTTLField ? [{ name: "ttl", type: "uint256" }] : []),
-    ...(config.experimental?.enabledDeadlineField ? [{ name: "deadline", type: "uint64" }] : []),
-    ...(!config.experimental?.enabledTTLField && !config.experimental?.enabledDeadlineField
-      ? [
-          { name: "validBefore", type: "uint256" },
-          { name: "validAfter", type: "uint256" },
-        ]
-      : []),
-  ];
   const typedData = {
     types: {
       Intent: [
         { name: "author", type: "address" },
-        ...timeRangFields,
+        { name: "validBefore", type: "uint256" },
+        { name: "validAfter", type: "uint256" },
         { name: "nonce", type: "uint256" },
         { name: "srcMToken", type: "address" },
         { name: "srcAmount", type: "uint256" },
@@ -78,19 +63,17 @@ export async function signIntent(
         { name: "outcomeAssetStructure", type: "uint8" },
         { name: "fillStructure", type: "uint8" },
       ],
-      ...(!ignoreDomain
-        ? {
-            EIP712Domain: [
-              { name: "name", type: "string" },
-              { name: "version", type: "string" },
-              { name: "verifyingContract", type: "address" },
-            ],
-          }
-        : {}),
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
     },
     domain: {
       name: "KhalaniIntent",
       version: "1.0.0",
+      chainId: config.chainId,
       verifyingContract: config.contract.intentBook,
     },
     primaryType: "Intent",

@@ -1,4 +1,37 @@
-import type { Abi } from "../types";
+import type { Abi, AbiParameter } from "../types";
+
+export const INTENT_PARAM = {
+  name: "intent",
+  type: "tuple",
+  internalType: "struct Intent",
+  components: [
+    { name: "author", type: "address", internalType: "address" },
+    { name: "validBefore", type: "uint64", internalType: "uint64" },
+    { name: "validAfter", type: "uint64", internalType: "uint64" },
+    { name: "nonce", type: "uint256", internalType: "uint256" },
+    { name: "srcMToken", type: "address", internalType: "address" },
+    { name: "srcAmount", type: "uint256", internalType: "uint256" },
+    {
+      name: "outcome",
+      type: "tuple",
+      internalType: "struct Outcome",
+      components: [
+        { name: "mTokens", type: "address[]", internalType: "address[]" },
+        { name: "mAmounts", type: "uint256[]", internalType: "uint256[]" },
+        {
+          name: "outcomeAssetStructure",
+          type: "uint8",
+          internalType: "enum OutcomeAssetStructure",
+        },
+        {
+          name: "fillStructure",
+          type: "uint8",
+          internalType: "enum FillStructure",
+        },
+      ],
+    },
+  ],
+} as const satisfies AbiParameter;
 
 export const INTENTBOOK_ABI = [
   {
@@ -62,48 +95,7 @@ export const INTENTBOOK_ABI = [
         name: "signedIntent",
         type: "tuple",
         internalType: "struct SignedIntent",
-        components: [
-          {
-            name: "intent",
-            type: "tuple",
-            internalType: "struct Intent",
-            components: [
-              { name: "author", type: "address", internalType: "address" },
-              { name: "deadline", type: "uint64", internalType: "uint64" },
-              { name: "nonce", type: "uint256", internalType: "uint256" },
-              { name: "srcMToken", type: "address", internalType: "address" },
-              { name: "srcAmount", type: "uint256", internalType: "uint256" },
-              {
-                name: "outcome",
-                type: "tuple",
-                internalType: "struct Outcome",
-                components: [
-                  {
-                    name: "mTokens",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "mAmounts",
-                    type: "uint256[]",
-                    internalType: "uint256[]",
-                  },
-                  {
-                    name: "outcomeAssetStructure",
-                    type: "uint8",
-                    internalType: "enum OutcomeAssetStructure",
-                  },
-                  {
-                    name: "fillStructure",
-                    type: "uint8",
-                    internalType: "enum FillStructure",
-                  },
-                ],
-              },
-            ],
-          },
-          { name: "signature", type: "bytes", internalType: "bytes" },
-        ],
+        components: [INTENT_PARAM, { name: "signature", type: "bytes", internalType: "bytes" }],
       },
     ],
     outputs: [{ name: "", type: "bool", internalType: "bool" }],
@@ -113,43 +105,7 @@ export const INTENTBOOK_ABI = [
     type: "function",
     name: "getIntent",
     inputs: [{ name: "intentId", type: "bytes32", internalType: "bytes32" }],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        internalType: "struct Intent",
-        components: [
-          { name: "author", type: "address", internalType: "address" },
-          { name: "deadline", type: "uint64", internalType: "uint64" },
-          { name: "nonce", type: "uint256", internalType: "uint256" },
-          { name: "srcMToken", type: "address", internalType: "address" },
-          { name: "srcAmount", type: "uint256", internalType: "uint256" },
-          {
-            name: "outcome",
-            type: "tuple",
-            internalType: "struct Outcome",
-            components: [
-              { name: "mTokens", type: "address[]", internalType: "address[]" },
-              {
-                name: "mAmounts",
-                type: "uint256[]",
-                internalType: "uint256[]",
-              },
-              {
-                name: "outcomeAssetStructure",
-                type: "uint8",
-                internalType: "enum OutcomeAssetStructure",
-              },
-              {
-                name: "fillStructure",
-                type: "uint8",
-                internalType: "enum FillStructure",
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    outputs: [INTENT_PARAM],
     stateMutability: "view",
   },
   {
@@ -162,43 +118,7 @@ export const INTENTBOOK_ABI = [
   {
     type: "function",
     name: "getIntentId",
-    inputs: [
-      {
-        name: "intent",
-        type: "tuple",
-        internalType: "struct Intent",
-        components: [
-          { name: "author", type: "address", internalType: "address" },
-          { name: "deadline", type: "uint64", internalType: "uint64" },
-          { name: "nonce", type: "uint256", internalType: "uint256" },
-          { name: "srcMToken", type: "address", internalType: "address" },
-          { name: "srcAmount", type: "uint256", internalType: "uint256" },
-          {
-            name: "outcome",
-            type: "tuple",
-            internalType: "struct Outcome",
-            components: [
-              { name: "mTokens", type: "address[]", internalType: "address[]" },
-              {
-                name: "mAmounts",
-                type: "uint256[]",
-                internalType: "uint256[]",
-              },
-              {
-                name: "outcomeAssetStructure",
-                type: "uint8",
-                internalType: "enum OutcomeAssetStructure",
-              },
-              {
-                name: "fillStructure",
-                type: "uint8",
-                internalType: "enum FillStructure",
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    inputs: [INTENT_PARAM],
     outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
     stateMutability: "view",
   },
@@ -239,48 +159,7 @@ export const INTENTBOOK_ABI = [
         name: "",
         type: "tuple",
         internalType: "struct SignedIntent",
-        components: [
-          {
-            name: "intent",
-            type: "tuple",
-            internalType: "struct Intent",
-            components: [
-              { name: "author", type: "address", internalType: "address" },
-              { name: "deadline", type: "uint64", internalType: "uint64" },
-              { name: "nonce", type: "uint256", internalType: "uint256" },
-              { name: "srcMToken", type: "address", internalType: "address" },
-              { name: "srcAmount", type: "uint256", internalType: "uint256" },
-              {
-                name: "outcome",
-                type: "tuple",
-                internalType: "struct Outcome",
-                components: [
-                  {
-                    name: "mTokens",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "mAmounts",
-                    type: "uint256[]",
-                    internalType: "uint256[]",
-                  },
-                  {
-                    name: "outcomeAssetStructure",
-                    type: "uint8",
-                    internalType: "enum OutcomeAssetStructure",
-                  },
-                  {
-                    name: "fillStructure",
-                    type: "uint8",
-                    internalType: "enum FillStructure",
-                  },
-                ],
-              },
-            ],
-          },
-          { name: "signature", type: "bytes", internalType: "bytes" },
-        ],
+        components: [INTENT_PARAM, { name: "signature", type: "bytes", internalType: "bytes" }],
       },
     ],
     stateMutability: "view",
@@ -321,48 +200,7 @@ export const INTENTBOOK_ABI = [
         name: "signedIntent",
         type: "tuple",
         internalType: "struct SignedIntent",
-        components: [
-          {
-            name: "intent",
-            type: "tuple",
-            internalType: "struct Intent",
-            components: [
-              { name: "author", type: "address", internalType: "address" },
-              { name: "deadline", type: "uint64", internalType: "uint64" },
-              { name: "nonce", type: "uint256", internalType: "uint256" },
-              { name: "srcMToken", type: "address", internalType: "address" },
-              { name: "srcAmount", type: "uint256", internalType: "uint256" },
-              {
-                name: "outcome",
-                type: "tuple",
-                internalType: "struct Outcome",
-                components: [
-                  {
-                    name: "mTokens",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "mAmounts",
-                    type: "uint256[]",
-                    internalType: "uint256[]",
-                  },
-                  {
-                    name: "outcomeAssetStructure",
-                    type: "uint8",
-                    internalType: "enum OutcomeAssetStructure",
-                  },
-                  {
-                    name: "fillStructure",
-                    type: "uint8",
-                    internalType: "enum FillStructure",
-                  },
-                ],
-              },
-            ],
-          },
-          { name: "signature", type: "bytes", internalType: "bytes" },
-        ],
+        components: [INTENT_PARAM, { name: "signature", type: "bytes", internalType: "bytes" }],
       },
     ],
     outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
@@ -444,40 +282,7 @@ export const INTENTBOOK_ABI = [
             name: "intentOutputs",
             type: "tuple[]",
             internalType: "struct Intent[]",
-            components: [
-              { name: "author", type: "address", internalType: "address" },
-              { name: "deadline", type: "uint64", internalType: "uint64" },
-              { name: "nonce", type: "uint256", internalType: "uint256" },
-              { name: "srcMToken", type: "address", internalType: "address" },
-              { name: "srcAmount", type: "uint256", internalType: "uint256" },
-              {
-                name: "outcome",
-                type: "tuple",
-                internalType: "struct Outcome",
-                components: [
-                  {
-                    name: "mTokens",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "mAmounts",
-                    type: "uint256[]",
-                    internalType: "uint256[]",
-                  },
-                  {
-                    name: "outcomeAssetStructure",
-                    type: "uint8",
-                    internalType: "enum OutcomeAssetStructure",
-                  },
-                  {
-                    name: "fillStructure",
-                    type: "uint8",
-                    internalType: "enum FillStructure",
-                  },
-                ],
-              },
-            ],
+            components: INTENT_PARAM.components,
           },
           {
             name: "receiptOutputs",
@@ -546,40 +351,7 @@ export const INTENTBOOK_ABI = [
             name: "intentOutputs",
             type: "tuple[]",
             internalType: "struct Intent[]",
-            components: [
-              { name: "author", type: "address", internalType: "address" },
-              { name: "deadline", type: "uint64", internalType: "uint64" },
-              { name: "nonce", type: "uint256", internalType: "uint256" },
-              { name: "srcMToken", type: "address", internalType: "address" },
-              { name: "srcAmount", type: "uint256", internalType: "uint256" },
-              {
-                name: "outcome",
-                type: "tuple",
-                internalType: "struct Outcome",
-                components: [
-                  {
-                    name: "mTokens",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "mAmounts",
-                    type: "uint256[]",
-                    internalType: "uint256[]",
-                  },
-                  {
-                    name: "outcomeAssetStructure",
-                    type: "uint8",
-                    internalType: "enum OutcomeAssetStructure",
-                  },
-                  {
-                    name: "fillStructure",
-                    type: "uint8",
-                    internalType: "enum FillStructure",
-                  },
-                ],
-              },
-            ],
+            components: INTENT_PARAM.components,
           },
           {
             name: "receiptOutputs",
@@ -636,36 +408,7 @@ export const INTENTBOOK_ABI = [
         name: "",
         type: "tuple[]",
         internalType: "struct Intent[]",
-        components: [
-          { name: "author", type: "address", internalType: "address" },
-          { name: "deadline", type: "uint64", internalType: "uint64" },
-          { name: "nonce", type: "uint256", internalType: "uint256" },
-          { name: "srcMToken", type: "address", internalType: "address" },
-          { name: "srcAmount", type: "uint256", internalType: "uint256" },
-          {
-            name: "outcome",
-            type: "tuple",
-            internalType: "struct Outcome",
-            components: [
-              { name: "mTokens", type: "address[]", internalType: "address[]" },
-              {
-                name: "mAmounts",
-                type: "uint256[]",
-                internalType: "uint256[]",
-              },
-              {
-                name: "outcomeAssetStructure",
-                type: "uint8",
-                internalType: "enum OutcomeAssetStructure",
-              },
-              {
-                name: "fillStructure",
-                type: "uint8",
-                internalType: "enum FillStructure",
-              },
-            ],
-          },
-        ],
+        components: INTENT_PARAM.components,
       },
     ],
     stateMutability: "view",
@@ -878,4 +621,4 @@ export const INTENTBOOK_ABI = [
     name: "IntentBook__UnauthorizedIntentPublisher",
     inputs: [],
   },
-] satisfies Abi;
+] as const satisfies Abi;

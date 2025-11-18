@@ -1,5 +1,4 @@
-// ...
-import type { Chain as NativeChain } from "@intents-sdk/utils";
+import type { Chain as NativeChain } from "../types/chain";
 import { type Chain as ViemChain, toHex } from "viem";
 
 export function convertViemChainToNativeChain(chain: ViemChain) {

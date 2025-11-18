@@ -1,42 +1,50 @@
-import type { Address, Hex, UserConfig } from "@intents-sdk/utils";
-import { bcs } from "@mysten/bcs";
-import { toBytes } from "@intents-sdk/utils";
-import { toU256Bytes } from "@intents-sdk/utils";
-import { toHex } from "@intents-sdk/utils";
+import type { Address, UserConfig } from "@intents-sdk/utils";
 import { requestAccounts } from "@intents-sdk/utils";
-import { getMedusaProvider } from "@intents-sdk/utils";
+import { getMedusaProvider, signTypeDataV4 } from "@intents-sdk/utils";
+import { randomU256BigInt } from "@intents-sdk/utils";
 
-export const CancelIntentPayload = bcs.struct("CancelIntentPayload", {
-  intent_id: bcs.vector(bcs.u8(), { length: 32 } as any),
-  nonce: bcs.vector(bcs.u8(), { length: 32 } as any),
-  chain_id: bcs.u64(),
-});
-
-export async function cancelIntent(config: Pick<UserConfig, "chainId" | "medusaURL" | "adapter">, intentId: Address) {
-  const nonce = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-  const intentIdBytes = toBytes(intentId);
+export async function cancelIntent(
+  config: Pick<UserConfig, "chainId" | "medusaURL" | "adapter" | "contract">,
+  intentId: Address,
+) {
+  const nonce = randomU256BigInt();
   const chainId = config.chainId;
 
   const addresses = await requestAccounts(config);
   const [address] = addresses;
 
-  const bcsPayload = CancelIntentPayload.serialize({
-    chain_id: chainId,
-    intent_id: intentIdBytes,
-    nonce: toU256Bytes(nonce),
-  });
+  const typedData = {
+    types: {
+      CancelIntent: [
+        { name: "nonce", type: "uint256" },
+        { name: "intentId", type: "bytes32" },
+      ],
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+    },
+    domain: {
+      name: "Arcadia",
+      version: "1",
+      chainId: chainId,
+      verifyingContract: config.contract.intentBook,
+    },
+    primaryType: "CancelIntent",
+    message: {
+      nonce: nonce.toString(),
+      intentId,
+    },
+  };
 
-  const hexMessage = toHex(bcsPayload.toBytes());
-  const signature = await config.adapter.request<Hex>({
-    method: "personal_sign",
-    params: [hexMessage, address],
-  });
+  const signature = await signTypeDataV4(config, address, typedData);
 
   const provider = getMedusaProvider(config);
   return provider.cancelIntent({
     payload: {
-      chain_id: chainId,
-      intent_id: intentId,
+      intentId,
       nonce: nonce.toString(),
     },
     signature,

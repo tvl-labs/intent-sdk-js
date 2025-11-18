@@ -2,9 +2,10 @@ import type { Address, UserConfig } from "../types";
 import { MTokenManagerArtifact } from "../abis/MTokenManagerArtifact";
 import { ContractNotFoundError } from "./error";
 import { getMedusaProvider } from "../medusa";
+import { readContract } from "./readContract";
 
 export async function getMTokenBalance(
-  config: Pick<UserConfig, "adapter" | "contract" | "chainId"> | Pick<UserConfig, "medusaURL">,
+  config: Pick<UserConfig, "adapter" | "chains" | "contract" | "chainId"> | Pick<UserConfig, "medusaURL">,
   mTokenAddress: Address,
   account: Address,
 ) {
@@ -16,11 +17,9 @@ export async function getMTokenBalance(
   if (!mTokenManagerAddress) {
     throw new ContractNotFoundError("MTokenManager address not found in config");
   }
-  return config.adapter.contractCaller.read<bigint>({
+  return readContract(config, mTokenManagerAddress, config.chainId, {
     abi: MTokenManagerArtifact,
-    address: mTokenManagerAddress,
     functionName: "getBalanceOfUser",
     args: [account, mTokenAddress],
-    chainId: config.chainId,
   });
 }

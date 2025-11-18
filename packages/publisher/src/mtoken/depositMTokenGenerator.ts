@@ -1,5 +1,4 @@
 import type { Address, BaseToken, Hex, UserConfig } from "@intents-sdk/utils";
-import { depositERC20WithSignature } from "./depositERC20WithSignature";
 import {
   addAndSwitchChain,
   getMTokenBalance,
@@ -10,11 +9,12 @@ import {
   waitForMTokenBalanceUpdate,
   waitForTransactionReceiptWithChainId,
 } from "@intents-sdk/utils";
-import { buildDepositERC20Permit2 } from "./buildDepositERC20Permit2";
+import { buildDepositPermit } from "./buildDepositPermit";
+import { permitDeposit } from "./permitDeposit";
 import { signTypeDataV4 } from "@intents-sdk/utils";
 import { ensureERC20Permit2Approved } from "./ensureERC20Permit2Approved";
 import { ensureERC20AllowanceToAssetReserves } from "./ensureERC20AllowanceToAssetReserves";
-import { depositERC20Traditional } from "./depositERC20Traditional";
+import { deposit } from "./deposit";
 
 export type DepositStyle = "traditional" | "permit2";
 type PickedConfig = Pick<UserConfig, "adapter" | "contract" | "medusaURL" | "chains" | "experimental" | "chainId">;
@@ -157,11 +157,15 @@ class Permit2Deposit extends Deposit {
 
   async run() {
     const { config, spokeToken, amount } = this;
-    const address = await this.requestAccount();
-    const permit2 = buildDepositERC20Permit2(config, spokeToken, amount, address);
-    const signature = await signTypeDataV4(config, permit2.depositor, permit2.typedData);
+    const depositor = await this.requestAccount();
+    const { typedData, ...options } = buildDepositPermit(config, spokeToken, amount);
+    const signature = await signTypeDataV4(config, depositor, typedData);
     await this.setBeforeAmount();
-    const txHash = await depositERC20WithSignature(this.config, this.spokeToken, this.amount, permit2, signature);
+    const txHash = await permitDeposit(this.config, {
+      ...options,
+      depositor,
+      signature,
+    });
     this._txHash = txHash;
     return txHash;
   }
@@ -178,7 +182,7 @@ class TraditionalDeposit extends Deposit {
   async run() {
     const { config, spokeToken, amount } = this;
     await this.setBeforeAmount();
-    const txHash = await depositERC20Traditional(config, spokeToken, amount);
+    const txHash = await deposit(config, spokeToken, amount);
     this._txHash = txHash;
     return txHash;
   }

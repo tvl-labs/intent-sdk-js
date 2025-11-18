@@ -1,6 +1,6 @@
 import { ASSET_RESERVES_ABI } from "@intents-sdk/utils";
 import type { Address, FastWithdrawalPermit, Hex, UserConfig } from "@intents-sdk/utils";
-import { getAssetReservesContractAddress } from "@intents-sdk/utils";
+import { getAssetReservesContractAddress, writeContract } from "@intents-sdk/utils";
 
 /**
  * Withdraw tokens from the AssetReserves with a FastWithdrawalPermit. Will send a transaction to the spoke chain.
@@ -18,7 +18,7 @@ import { getAssetReservesContractAddress } from "@intents-sdk/utils";
  * @returns The transaction hash.
  */
 export async function withdrawWithPermit(
-  config: Pick<UserConfig, "adapter" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chains" | "contract">,
   permit: FastWithdrawalPermit,
   receiver: Address,
   userSignature: Hex,
@@ -32,18 +32,26 @@ export async function withdrawWithPermit(
   },
 ): Promise<Hex> {
   const address = getAssetReservesContractAddress(config, permit.spokeChainId);
-  return (await config.adapter.contractCaller.write({
-    address,
+  return await writeContract(config, address, {
+    chainId: permit.spokeChainId,
     abi: ASSET_RESERVES_ABI,
     functionName: "withdrawWithPermit",
-    args: [permit, receiver, userSignature, operatorSignature],
-    chainId: permit.spokeChainId,
-    options,
-  })) as Hex;
+    args: [
+      {
+        ...permit,
+        nonce: BigInt(permit.nonce as string),
+        amount: BigInt(permit.amount as string),
+      },
+      receiver,
+      userSignature,
+      operatorSignature,
+    ],
+    ...options,
+  });
 }
 
 export async function withdrawWithPermitAndWitness(
-  config: Pick<UserConfig, "adapter" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chains" | "contract">,
   permit: FastWithdrawalPermit,
   receiver: Address,
   witness: Hex,
@@ -59,12 +67,22 @@ export async function withdrawWithPermitAndWitness(
   },
 ): Promise<Hex> {
   const address = getAssetReservesContractAddress(config, permit.spokeChainId);
-  return (await config.adapter.contractCaller.write({
-    address,
+  return await writeContract(config, address, {
+    chainId: permit.spokeChainId,
     abi: ASSET_RESERVES_ABI,
     functionName: "withdrawWithPermitAndWitness",
-    args: [permit, receiver, witness, witnessTypeString, userSignature, operatorSignature],
-    chainId: permit.spokeChainId,
-    options,
-  })) as Hex;
+    args: [
+      {
+        ...permit,
+        nonce: BigInt(permit.nonce as string),
+        amount: BigInt(permit.amount as string),
+      },
+      receiver,
+      witness,
+      witnessTypeString,
+      userSignature,
+      operatorSignature,
+    ],
+    ...options,
+  });
 }

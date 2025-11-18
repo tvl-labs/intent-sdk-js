@@ -1,4 +1,4 @@
-# Intents JS SDK
+# Khalani Intents JavaScript SDK
 
 A comprehensive JavaScript SDK for interacting with the Intents protocol, providing seamless cross-chain token bridging and intent-based trading capabilities.
 
@@ -13,9 +13,6 @@ npm i @intents-sdk/publisher
 Optional adapters:
 
 ```bash
-# Viem Adapter
-npm i @intents-sdk/viem-adapter
-
 # Wagmi Adapter
 npm i @intents-sdk/wagmi-adapter
 ```
@@ -28,7 +25,7 @@ Use `defineConfig` from `@intents-sdk/utils` to set up your runtime configuratio
 import { defineConfig } from "@intents-sdk/utils";
 
 defineConfig({
-  adapter: walletAdapter, // Your wallet adapter
+  adapter: window.ethereum, // Your wallet adapter
   chainId: 1,
   chains: [
     {
@@ -55,16 +52,16 @@ defineConfig({
 });
 ```
 
-Adapter example (viem):
+Adapter example
 
 ```ts
-import { convertViemChainToNativeChain, ViemWalletAdapter } from "@intents-sdk/viem-adapter";
+import { convertViemChainToNativeChain } from "@intents-sdk/utils";
 import { mainnet } from "viem/chains";
 
 const chains = [mainnet];
 
 const config = defineConfig({
-  adapter: new ViemWalletAdapter(provider, chains),
+  adapter: window.ethereum,
   chains: chains.map((c) => convertViemChainToNativeChain(c)),
 });
 ```
@@ -80,7 +77,7 @@ const config = defineConfig({
 
 ### Config
 
-All core actions—such as bridge, deposit, and withdraw—depend on a centralized configuration object called `UserConfig`. This configuration defines runtime environment, chain settings, contract addresses, and other essential parameters.
+All core actions such as swaps, deposit, and withdraw depend on a centralized configuration object called `UserConfig`. This configuration defines runtime environment, chain settings, contract addresses, and other essential parameters.
 
 - The SDK does not ship with built-in chain or contract information.
 - All supported chains, contract addresses, and token definitions must be explicitly set in your `defineConfig` call.
@@ -100,10 +97,7 @@ An intent is a result predicate expression for future settlement transactions: a
 
 ### MToken
 
-MTokens are wrapped versions of traditional tokens that enable cross-chain functionality. They maintain a 1:1 relationship with underlying tokens.
-
-- For cross-chain transactions or liquidity provisioning, deposits are converted to MToken first.
-- MToken decimals are 18, even if the source token uses fewer decimals (e.g., USDT has 6).
+MTokens are unified accounting units over tokens on any blockchain to enable cross-chain functionality. MToken decimals are 18, even if the source token uses fewer decimals (e.g., USDT has 6).
 
 ### chainId vs chains[]
 
@@ -112,7 +106,7 @@ MTokens are wrapped versions of traditional tokens that enable cross-chain funct
 
 ## Example
 
-Refine a bridge intent using the intent SDK and common utils:
+Refine a cross-chain bridge intent using the intent SDK and common utils:
 
 ```ts
 import { refineBridgeSwapIntent } from "@intents-sdk/publisher";
@@ -127,7 +121,7 @@ const [address] = await requestAccounts(config);
 const { Refinement: bridgeIntent } = await refineBridgeSwapIntent(config, address, mainnetUSDC, arbUSDC, amount);
 ```
 
-### Deposit with Intent (Recommended)
+### Deposit with Intents (Recommended)
 
 Authorize AssetReserves once, then deposit with intent:
 
@@ -140,7 +134,7 @@ await ensureERC20AllowanceToAssetReserves(config, mainnetUSDC, MAX_UINT_256, aut
 await depositERC20WithIntent(config, amount, bridgeIntent);
 ```
 
-### Bridge (Permit2 style)
+### Bridge with Permit2
 
 Use Permit2 to deposit and publish the intent:
 
@@ -155,9 +149,9 @@ await consumeIterator(
 );
 ```
 
-### Bridge (Traditional style)
+### Bridge with token approvals
 
-Use traditional approval/deposit flow:
+Use the approval/deposit flow:
 
 ```ts
 import { bridgeSwapGenerator } from "@intents-sdk/publisher";
@@ -170,7 +164,7 @@ await consumeIterator(
 );
 ```
 
-### Deposit (Quick way)
+### 1-shot Deposits
 
 One-shot deposit generator:
 
@@ -182,7 +176,7 @@ const amount = 1000n;
 await consumeIterator(depositMTokenGenerator(config, mainnetUSDC, amount));
 ```
 
-### Deposit (With signature, Permit2)
+### Signature Based Deposits
 
 Build EIP-712 typed data, sign, then deposit:
 
@@ -204,7 +198,37 @@ const signature = await signTypeDataV4(config, permit2.depositor, permit2.typedD
 await depositERC20WithSignature(config, mainnetUSDC, amount, permit2, signature);
 ```
 
-### Deposit (Traditional)
+### Deposit with Payload
+
+Deposit with intent payload using Permit2:
+
+```ts
+import {
+  buildIntent,
+  buildDepositPermitWithPayload,
+  permitDeposit,
+  ensureERC20Permit2Approved,
+} from "@intents-sdk/publisher";
+import { encodeIntentPayload, signTypeDataV4, requestAccounts, FillStructureStr } from "@intents-sdk/utils";
+
+const [author] = await requestAccounts(config);
+const amount = 1000n;
+
+// Build intent and encode payload
+const intent = buildIntent(config, author, mainnetUSDC, [mainnetUSDC], amount, FillStructureStr.Exact);
+const payload = encodeIntentPayload(intent);
+const gasLimit = 800000n;
+
+// Build permit with payload
+const { typedData, ...options } = await buildDepositPermitWithPayload(config, mainnetUSDC, amount, payload, gasLimit);
+
+// Sign and deposit
+const signature = await signTypeDataV4(config, author, typedData);
+await ensureERC20Permit2Approved(config, mainnetUSDC, author, { expected: amount });
+await permitDeposit(config, { ...options, depositor: author, signature });
+```
+
+### Approval Based Deposits
 
 Approve AssetReserves for an exact amount, then deposit:
 
@@ -219,7 +243,7 @@ await ensureERC20AllowanceToAssetReserves(config, mainnetUSDC, amount, author);
 await depositERC20Traditional(config, mainnetUSDC, amount);
 ```
 
-### Withdraw (Traditional)
+### Approval Based Withdraws
 
 Convert MToken back to the original token:
 

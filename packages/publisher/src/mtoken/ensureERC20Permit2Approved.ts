@@ -1,8 +1,4 @@
-import {
-  isApprovedERC20Permit2,
-  waitForTransactionReceiptWithChainId,
-  approveERC20Permit2,
-} from "@intents-sdk/utils";
+import { isApprovedERC20Permit2, waitForTransactionReceiptWithChainId, approveERC20Permit2 } from "@intents-sdk/utils";
 import type { Address, BaseToken, Hex, UserConfig, TransactionReceipt } from "@intents-sdk/utils";
 
 type MethodReturn<R extends boolean> = (R extends true ? TransactionReceipt : Hex) | true;

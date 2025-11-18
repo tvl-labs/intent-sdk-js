@@ -1,6 +1,6 @@
 import type { Abi } from "../types";
 
-export const ERC20_ALLOWANCE: Abi = [
+export const ERC20_ALLOWANCE = [
   {
     inputs: [
       {
@@ -25,9 +25,9 @@ export const ERC20_ALLOWANCE: Abi = [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const satisfies Abi;
 
-export const ERC20_APPROVE: Abi = [
+export const ERC20_APPROVE = [
   {
     inputs: [
       {
@@ -52,9 +52,9 @@ export const ERC20_APPROVE: Abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const satisfies Abi;
 
-export const ERC20_ABI: Abi = [
+export const ERC20_ABI = [
   {
     anonymous: false,
     inputs: [
@@ -267,7 +267,7 @@ export const ERC20_ABI: Abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] satisfies Abi;
+] as const satisfies Abi;
 
 export const ERC20_PERMIT_ABI: Abi = [
   {
@@ -277,4 +277,4 @@ export const ERC20_PERMIT_ABI: Abi = [
     outputs: [{ name: "", type: "uint256" }],
     stateMutability: "view",
   },
-] satisfies Abi;
+] as const satisfies Abi;

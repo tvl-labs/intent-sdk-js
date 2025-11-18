@@ -173,20 +173,6 @@ export interface MedusaIntent<
   /**
    * The latest timestamp (in seconds) at which this intent remains valid.
    * Equivalent to TTL (time-to-live). After this time, the intent is considered expired.
-   * @deprecated The next version will use `validBefore` instead.
-   */
-  deadline?: string;
-
-  /**
-   * The latest timestamp (in seconds) at which this intent remains valid.
-   * Equivalent to TTL (time-to-live). After this time, the intent is considered expired.
-   * @deprecated The next version will use `validBefore` instead.
-   */
-  ttl?: string;
-
-  /**
-   * The latest timestamp (in seconds) at which this intent remains valid.
-   * Equivalent to TTL (time-to-live). After this time, the intent is considered expired.
    */
   validBefore: string;
 
@@ -216,6 +202,24 @@ export interface MedusaIntent<
    * Expected outcome of the intent, including destination chain/token, receiver, and amount.
    */
   outcome: MedusaIntentOutcome<F, O>;
+}
+
+export interface MedusaCrossChainIntent {
+  author: Address;
+  // uint256
+  validBefore: Hex;
+  // uint256
+  nonce: Hex;
+  srcMToken: Address;
+  // uint256
+  srcAmount: Hex;
+  // uint32
+  destinationChainId: number;
+  // uint256
+  nativeOutcome: Hex;
+  outcomeToken: Address;
+  // uint256
+  outcomeAmount: Hex;
 }
 
 export type MedusaHistory = [MedusaTransaction, MedusaIntent];
@@ -317,13 +321,12 @@ export interface MedusaProvider {
    */
   depositToVault: (params: {
     payload: {
-      chain_id: number;
       nonce: string;
-      teller_address: Address;
-      depositor_address: Address;
+      tellerAddress: Address;
+      depositorAddress: Address;
       asset: Address;
       amount: string;
-      min_shares: string;
+      minShares: string;
     };
     signature: Signature;
   }) => Promise<TxHash>;
@@ -341,14 +344,13 @@ export interface MedusaProvider {
    */
   withdrawFromVault: (params: {
     payload: {
-      chain_id: number;
       nonce: string;
-      teller_address: Address;
-      depositor_address: Address;
+      tellerAddress: Address;
+      depositorAddress: Address;
       shares: string;
       asset: Address;
-      min_amount: string;
-      fee_percentage: number;
+      minAmount: string;
+      feePercentage: number;
     };
     signature: Signature;
   }) => Promise<TxHash>;
@@ -388,14 +390,6 @@ export interface MedusaProvider {
   getIntent: (intentId: Address) => Promise<MedusaIntent | null>;
 
   /**
-   * Computes the intent ID for a given intent.
-   *
-   * @param intent - The `MedusaIntent` to compute the ID for.
-   * @returns A Promise that resolves to the intent ID.
-   */
-  computeIntentId: (intent: MedusaIntent) => Promise<Address>;
-
-  /**
    * Fetches all intent IDs created by a specific author address.
    *
    * @param author - The address of the intent creator.
@@ -422,7 +416,6 @@ export interface MedusaProvider {
    */
   withdrawMtokens: (params: {
     payload: {
-      chain_id: number;
       address: Address;
       mtoken: Address;
       amount: string;
@@ -455,8 +448,7 @@ export interface MedusaProvider {
    */
   cancelIntent: (params: {
     payload: {
-      chain_id: number;
-      intent_id: IntentId;
+      intentId: IntentId;
       nonce: string;
     };
     signature: Signature;
@@ -487,6 +479,15 @@ export interface MedusaProvider {
    * @returns A Promise resolving to a tuple of [transaction hash, intent ID].
    */
   proposeIntent: (params: { intent: MedusaIntent; signature: Signature }) => Promise<[TxHash, IntentId]>;
+
+  /**
+   * Publishes a cross-chain intent to the Medusa backend for publication and propagation.
+   *
+   * @param params.intent - The complete `MedusaCrossChainIntent` to propose.
+   * @param params.signature - Signature authorizing the proposal.
+   * @returns A Promise resolving to a tuple of [transaction hash, intent ID].
+   */
+  publishCrossChainIntent: (intent: MedusaCrossChainIntent, signature: Signature) => Promise<TxHash>;
 
   /**
    * Retrieves the current execution status/state of the given intent.

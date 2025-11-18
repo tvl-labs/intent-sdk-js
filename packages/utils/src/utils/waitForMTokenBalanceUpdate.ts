@@ -12,7 +12,7 @@ type ExpectedBalance =
   | { lessThanOrEqual: bigint };
 
 async function waitForMTokenBalanceUpdateWithMTokenAddress(
-  config: Pick<UserConfig, "adapter" | "chainId" | "contract"> | Pick<UserConfig, "medusaURL">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "chains"> | Pick<UserConfig, "medusaURL">,
   mTokenAddress: Address,
   expectedBalance: ExpectedBalance,
   address: Address,
@@ -57,7 +57,7 @@ async function waitForMTokenBalanceUpdateWithMTokenAddress(
 }
 
 export async function waitForMTokenBalanceUpdate(
-  config: Pick<UserConfig, "adapter" | "chainId" | "contract"> | Pick<UserConfig, "medusaURL" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "chains"> | Pick<UserConfig, "medusaURL" | "contract">,
   mTokenAddress: Address,
   expectedBalance: ExpectedBalance,
   address: Address,
@@ -67,7 +67,7 @@ export async function waitForMTokenBalanceUpdate(
   },
 ): Promise<bigint>;
 export async function waitForMTokenBalanceUpdate(
-  config: Pick<UserConfig, "adapter" | "chainId" | "contract"> | Pick<UserConfig, "medusaURL" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "chains"> | Pick<UserConfig, "medusaURL" | "contract">,
   sourceToken: BaseToken,
   expectedBalance: ExpectedBalance,
   address: Address,
@@ -77,7 +77,7 @@ export async function waitForMTokenBalanceUpdate(
   },
 ): Promise<bigint>;
 export async function waitForMTokenBalanceUpdate(
-  config: Pick<UserConfig, "adapter" | "chainId" | "contract"> | Pick<UserConfig, "medusaURL" | "contract">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "contract" | "chains"> | Pick<UserConfig, "medusaURL" | "contract">,
   sourceTokenOrMTokenAddress: BaseToken | Address,
   expectedBalance: ExpectedBalance,
   address: Address,

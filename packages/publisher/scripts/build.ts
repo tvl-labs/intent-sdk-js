@@ -1,15 +1,4 @@
-import { rollup } from "rollup";
-import typescript from "@rollup/plugin-typescript";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
-import dts from "rollup-plugin-dts";
-import fs from "fs-extra";
-import * as path from "path";
-
-const pkg = fs.readJSONSync("package.json");
-const repoPkg = fs.readJSONSync("../../package.json");
-const outDir = "dist";
+import { build, type BuildConfig } from "@repo/build-config";
 
 const entries = [
   { input: "src/index.ts", name: "index" },
@@ -19,107 +8,13 @@ const entries = [
   { input: "src/mtoken/index.ts", name: "mtoken" },
 ];
 
-const sourcemap = false;
+const config: BuildConfig = {
+  entries,
+  treeshake: false,
+  getImportPath: (entryName: string) => (entryName === "index" ? "./index.mjs" : `./${entryName}/index.mjs`),
+};
 
-async function buildJS() {
-  for (const entry of entries) {
-    const bundle = await rollup({
-      input: entry.input,
-      external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
-      plugins: [nodeResolve(), commonjs(), json(), typescript({ tsconfig: "./tsconfig.json", declaration: false })],
-      treeshake: false,
-    });
-
-    await bundle.write({
-      file: `${outDir}/${entry.name}.cjs`,
-      format: "cjs",
-      sourcemap,
-    });
-
-    await bundle.write({
-      dir: outDir,
-      entryFileNames: "[name].mjs",
-      format: "esm",
-      sourcemap,
-      preserveModules: true,
-      preserveModulesRoot: "src",
-    });
-
-    await bundle.close();
-  }
-}
-
-async function buildDTS() {
-  for (const entry of entries) {
-    const bundle = await rollup({
-      input: entry.input,
-      plugins: [dts()],
-    });
-
-    await bundle.write({
-      file: `${outDir}/${entry.name}.d.ts`,
-      format: "es",
-    });
-
-    await bundle.close();
-  }
-}
-
-function buildPackageJson() {
-  const exports = {};
-
-  for (const entry of entries) {
-    const key = entry.name === "index" ? "." : `./${entry.name}`;
-    exports[key] = {
-      import: entry.name === "index" ? "./index.mjs" : `./${entry.name}/index.mjs`,
-      require: `./${entry.name}.cjs`,
-      types: `./${entry.name}.d.ts`,
-    };
-  }
-
-  const minimalPkg = {
-    name: pkg.name,
-    version: repoPkg.version,
-    description: pkg.description,
-    main: "index.cjs",
-    module: "index.mjs",
-    types: "index.d.ts",
-    exports,
-    keywords: pkg.keywords,
-    repository: pkg.repository,
-    license: pkg.license,
-    peerDependencies: pkg.peerDependencies,
-    dependencies: Object.entries<Record<string, string>>(pkg.dependencies ?? {}).reduce((acc, [key, value]) => {
-      return {
-        ...acc,
-        [key]: key.startsWith("@intents-sdk/") ? repoPkg.version : value,
-      };
-    }, {}),
-  };
-
-  fs.writeJSONSync(path.join(outDir, "package.json"), minimalPkg, {
-    spaces: 2,
-  });
-}
-
-function copyFiles() {
-  for (const f of ["README.md", "LICENSE"]) {
-    if (fs.existsSync(f)) {
-      fs.copyFileSync(f, path.join(outDir, f));
-    }
-  }
-}
-
-async function main() {
-  await fs.emptyDir(outDir);
-  await buildJS();
-  await buildDTS();
-  buildPackageJson();
-  copyFiles();
-  console.info("Build complete!");
-}
-
-main().catch((e) => {
+build("package.json", "../../package.json", config).catch((e) => {
   console.error(e);
   process.exit(1);
 });

@@ -1,17 +1,16 @@
 import type { Address, UserConfig } from "../types";
 import { ERC20_ABI } from "../abis";
+import { readContract } from "./readContract";
 
 export function getERC20Balance(
-  config: Pick<UserConfig, "adapter">,
+  config: Pick<UserConfig, "adapter" | "chains">,
   chainId: number,
   address: Address,
   account: Address,
 ) {
-  return config.adapter.contractCaller.read<bigint>({
+  return readContract(config, address, chainId, {
     abi: ERC20_ABI,
-    address: address,
     functionName: "balanceOf",
     args: [account],
-    chainId,
   });
 }

@@ -1,0 +1,33 @@
+{
+  "name": "@repo/build-config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.15.3",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "fs-extra": "^11.3.0",
+    "rollup": "^4.45.0",
+    "rollup-plugin-dts": "^6.2.1"
+  }
+}

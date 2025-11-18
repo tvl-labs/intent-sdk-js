@@ -2,7 +2,7 @@ import type { BaseToken, UserConfig } from "../types";
 import { getMTokenBySourceToken } from "./getMTokenBySourceToken";
 
 export function convertSourceTokenAmountToMTokenAmount(
-  config: Pick<UserConfig, "contract" | "adapter" | "chainId">,
+  config: Pick<UserConfig, "contract">,
   token: BaseToken,
   amount: bigint,
 ) {

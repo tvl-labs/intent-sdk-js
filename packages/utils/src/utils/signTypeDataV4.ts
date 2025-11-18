@@ -7,6 +7,6 @@ export async function signTypeDataV4<T extends object>(
 ) {
   return config.adapter.request<Hex>({
     method: "eth_signTypedData_v4",
-    params: [address, JSON.stringify(typedData)],
+    params: [address, JSON.stringify(typedData, (_, v) => (typeof v === "bigint" ? v.toString() : v))],
   });
 }

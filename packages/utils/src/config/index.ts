@@ -6,3 +6,4 @@ export function defineConfig<C extends Partial<UserConfig>>(config: C): C {
 
 export * from "./premit2";
 export * from "./number";
+export * from "./address";

@@ -1,45 +1,54 @@
-import { bcs } from "@mysten/bcs";
-import { requestAccounts, toBytes, toU256Bytes, toHex, getMedusaProvider } from "@intents-sdk/utils";
-import type { Address, Hex, UserConfig } from "@intents-sdk/utils";
-
-export const WithdrawMtokensPayload = bcs.struct("WithdrawMtokensPayload", {
-  address: bcs.vector(bcs.u8(), { length: 20 } as any),
-  amount: bcs.vector(bcs.u8(), { length: 32 } as any),
-  mtoken: bcs.vector(bcs.u8(), { length: 20 } as any),
-  nonce: bcs.vector(bcs.u8(), { length: 32 } as any),
-  chain_id: bcs.u64(),
-});
+import { requestAccounts } from "@intents-sdk/utils";
+import type { Address, UserConfig } from "@intents-sdk/utils";
+import { getMedusaProvider, signTypeDataV4 } from "@intents-sdk/utils";
+import { randomU256BigInt } from "@intents-sdk/utils";
 
 export async function withdrawMToken(
-  config: Pick<UserConfig, "adapter" | "chainId" | "medusaURL">,
+  config: Pick<UserConfig, "adapter" | "chainId" | "medusaURL" | "contract">,
   tokenAddress: Address,
   amount: bigint,
 ) {
-  const nonce = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  const nonce = randomU256BigInt();
   const chainId = config.chainId;
 
   const addresses = await requestAccounts(config);
   const [address] = addresses;
 
-  const userAddressBytes = toBytes(address);
-  const mTokenAddressBytes = toBytes(tokenAddress);
-  const bcsPayload = WithdrawMtokensPayload.serialize({
-    chain_id: chainId,
-    address: userAddressBytes,
-    mtoken: mTokenAddressBytes,
-    amount: toU256Bytes(amount),
-    nonce: toU256Bytes(nonce),
-  });
+  const typedData = {
+    types: {
+      Withdraw: [
+        { name: "address", type: "address" },
+        { name: "amount", type: "uint256" },
+        { name: "mtoken", type: "address" },
+        { name: "nonce", type: "uint256" },
+      ],
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+    },
+    domain: {
+      name: "Arcadia",
+      version: "1",
+      chainId: chainId,
+      verifyingContract: config.contract.mTokenManager,
+    },
+    primaryType: "Withdraw",
+    message: {
+      address,
+      amount: amount.toString(),
+      mtoken: tokenAddress,
+      nonce: nonce.toString(),
+    },
+  };
 
-  const hexMessage = toHex(bcsPayload.toBytes());
-  const signature = await config.adapter.request<Hex>({
-    method: "personal_sign",
-    params: [hexMessage, address],
-  });
+  const signature = await signTypeDataV4(config, address, typedData);
+
   const provider = getMedusaProvider(config);
   return provider.withdrawMtokens({
     payload: {
-      chain_id: chainId,
       address,
       mtoken: tokenAddress,
       amount: amount.toString(),

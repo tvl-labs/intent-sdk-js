@@ -1,4 +1,88 @@
-import type { Abi } from "../types";
+import type { Abi, AbiItem } from "../types";
+
+export const PERMIT_DEPOSIT = {
+  type: "function",
+  name: "permitDeposit",
+  inputs: [
+    {
+      name: "permit",
+      type: "tuple",
+      internalType: "struct PermitTransferFrom",
+      components: [
+        {
+          name: "permitted",
+          type: "tuple",
+          internalType: "struct TokenPermissions",
+          components: [
+            { name: "token", type: "address", internalType: "address" },
+            { name: "amount", type: "uint256", internalType: "uint256" },
+          ],
+        },
+        { name: "nonce", type: "uint256", internalType: "uint256" },
+        { name: "deadline", type: "uint256", internalType: "uint256" },
+      ],
+    },
+    { name: "depositor", type: "address", internalType: "address" },
+    { name: "signature", type: "bytes", internalType: "bytes" },
+  ],
+  outputs: [],
+  stateMutability: "payable",
+} as const satisfies AbiItem;
+
+export const PERMIT_DEPOSIT_PAYLOAD = {
+  type: "function",
+  name: "permitDeposit",
+  inputs: [
+    {
+      name: "permit",
+      type: "tuple",
+      internalType: "struct PermitTransferFrom",
+      components: [
+        {
+          name: "permitted",
+          type: "tuple",
+          internalType: "struct TokenPermissions",
+          components: [
+            { name: "token", type: "address", internalType: "address" },
+            { name: "amount", type: "uint256", internalType: "uint256" },
+          ],
+        },
+        { name: "nonce", type: "uint256", internalType: "uint256" },
+        { name: "deadline", type: "uint256", internalType: "uint256" },
+      ],
+    },
+    { name: "depositor", type: "address", internalType: "address" },
+    { name: "payload", type: "bytes", internalType: "bytes" },
+    { name: "gasLimit", type: "uint256", internalType: "uint256" },
+    { name: "signature", type: "bytes", internalType: "bytes" },
+  ],
+  outputs: [],
+  stateMutability: "payable",
+} as const satisfies AbiItem;
+
+export const DEPOSIT = {
+  type: "function",
+  name: "deposit",
+  inputs: [
+    { name: "_token", type: "address", internalType: "address" },
+    { name: "_amount", type: "uint256", internalType: "uint256" },
+  ],
+  outputs: [],
+  stateMutability: "payable",
+} as const satisfies AbiItem;
+
+export const DEPOSIT_PAYLOAD = {
+  type: "function",
+  name: "deposit",
+  inputs: [
+    { name: "_token", type: "address", internalType: "address" },
+    { name: "_amount", type: "uint256", internalType: "uint256" },
+    { name: "_payload", type: "bytes", internalType: "bytes" },
+    { name: "_gasLimit", type: "uint256", internalType: "uint256" },
+  ],
+  outputs: [],
+  stateMutability: "payable",
+} as const satisfies AbiItem;
 
 export const ASSET_RESERVES_ABI = [
   {
@@ -16,6 +100,41 @@ export const ASSET_RESERVES_ABI = [
         internalType: "address",
       },
     ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "whitelistAndEnableNativeToken",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "whitelistNativeToken",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "enableNativeToken",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "depositNative",
+    inputs: [{ name: "_amount", type: "uint256", internalType: "uint256" }],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    name: "withdrawNativeDust",
+    inputs: [{ name: "recipient", type: "address", internalType: "address" }],
+    outputs: [],
     stateMutability: "nonpayable",
   },
   {
@@ -56,123 +175,10 @@ export const ASSET_RESERVES_ABI = [
     outputs: [],
     stateMutability: "nonpayable",
   },
-  {
-    type: "function",
-    name: "depositERC20",
-    inputs: [
-      { name: "_token", type: "address", internalType: "address" },
-      { name: "_amount", type: "uint256", internalType: "uint256" },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "depositERC20WithIntent",
-    inputs: [
-      { name: "_token", type: "address", internalType: "address" },
-      { name: "_amount", type: "uint256", internalType: "uint256" },
-      {
-        name: "_intent",
-        type: "tuple",
-        internalType: "struct Intent",
-        components: [
-          { name: "author", type: "address", internalType: "address" },
-          {
-            name: "validBefore",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "validAfter",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          { name: "nonce", type: "uint256", internalType: "uint256" },
-          {
-            name: "srcMToken",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "srcAmount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "outcome",
-            type: "tuple",
-            internalType: "struct Outcome",
-            components: [
-              {
-                name: "mTokens",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "mAmounts",
-                type: "uint256[]",
-                internalType: "uint256[]",
-              },
-              {
-                name: "outcomeAssetStructure",
-                type: "uint8",
-                internalType: "enum OutcomeAssetStructure",
-              },
-              {
-                name: "fillStructure",
-                type: "uint8",
-                internalType: "enum FillStructure",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "depositERC20WithIntentHash",
-    inputs: [
-      { name: "_token", type: "address", internalType: "address" },
-      { name: "_amount", type: "uint256", internalType: "uint256" },
-      { name: "_depositor", type: "address", internalType: "address" },
-      {
-        name: "_permitDeadline",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "_permitNonce",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      { name: "_intentHash", type: "bytes32", internalType: "bytes32" },
-      { name: "signature", type: "bytes", internalType: "bytes" },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "depositERC20WithSignature",
-    inputs: [
-      { name: "_token", type: "address", internalType: "address" },
-      { name: "_amount", type: "uint256", internalType: "uint256" },
-      { name: "_depositor", type: "address", internalType: "address" },
-      { name: "_deadline", type: "uint256", internalType: "uint256" },
-      {
-        name: "_permitNonce",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      { name: "signature", type: "bytes", internalType: "bytes" },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
+  DEPOSIT,
+  DEPOSIT_PAYLOAD,
+  PERMIT_DEPOSIT,
+  PERMIT_DEPOSIT_PAYLOAD,
   {
     type: "function",
     name: "disableToken",
@@ -203,6 +209,19 @@ export const ASSET_RESERVES_ABI = [
     name: "isEventRelayed",
     inputs: [{ name: "_eventHash", type: "bytes32", internalType: "bytes32" }],
     outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "quoteRelayDeposit",
+    inputs: [
+      { name: "_token", type: "address", internalType: "address" },
+      { name: "_depositor", type: "address", internalType: "address" },
+      { name: "_amount", type: "uint256", internalType: "uint256" },
+      { name: "_payload", type: "bytes", internalType: "bytes" },
+      { name: "_gasLimit", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -616,4 +635,4 @@ export const ASSET_RESERVES_ABI = [
     name: "AssetReserves__WithdrawalAlreadyProcessed",
     inputs: [],
   },
-] satisfies Abi;
+] as const satisfies Abi;

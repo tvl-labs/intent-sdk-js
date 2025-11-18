@@ -1037,4 +1037,4 @@ export const MTokenManagerArtifact = [
     name: "UnsupportedMToken",
     inputs: [],
   },
-] satisfies Abi;
+] as const satisfies Abi;

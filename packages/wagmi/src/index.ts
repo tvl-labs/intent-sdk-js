@@ -1,12 +1,5 @@
-import {
-  AccountNotConnectedError,
-  ChainNotFoundError,
-  type ContractCaller,
-  type Eip1193Provider,
-  type WalletAdapter,
-} from "@intents-sdk/utils";
-import { type Config, getAccount, readContract, switchChain, writeContract } from "@wagmi/core";
-import { estimateFeesPerGas } from "@intents-sdk/viem-adapter";
+import { AccountNotConnectedError, type Eip1193Provider, type WalletAdapter } from "@intents-sdk/utils";
+import { type Config, getAccount } from "@wagmi/core";
 
 export class WagmiAdapter implements WalletAdapter {
   protected readonly provider: Eip1193Provider | undefined;
@@ -21,50 +14,5 @@ export class WagmiAdapter implements WalletAdapter {
       provider = (await connector.getProvider()) as Eip1193Provider;
     }
     return provider.request(args);
-  }
-
-  get contractCaller() {
-    return {
-      read: async <T = unknown>(params: Parameters<ContractCaller["read"]>[0]): Promise<T> => {
-        const chain = this.config.chains.find((x) => x.id === params.chainId);
-        if (!chain) throw new ChainNotFoundError(`Chain ${params.chainId} not supported`);
-        return (await readContract(this.config, {
-          abi: params.abi,
-          address: params.address,
-          functionName: params.functionName,
-          args: params.args,
-          chainId: params.chainId,
-        })) as Promise<T>;
-      },
-      write: async (params) => {
-        const chain = this.config.chains.find((x) => x.id === params.chainId);
-        if (!chain) throw new ChainNotFoundError(`Chain ${params.chainId} not supported`);
-        await switchChain(this.config, {
-          chainId: params.chainId,
-        });
-        const { address } = getAccount(this.config);
-        if (!address) throw new AccountNotConnectedError();
-        const { gas, maxFeePerGas, maxPriorityFeePerGas } = await estimateFeesPerGas(chain, address, params);
-        return writeContract(this.config, {
-          abi: params.abi,
-          address: params.address,
-          functionName: params.functionName,
-          args: params.args,
-          value: params.options?.value,
-          chainId: params.chainId,
-          gas,
-          ...(params.options?.gasPrice
-            ? {
-                gasPrice: params.options.gasPrice,
-              }
-            : {
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              }),
-          nonce: params.options?.nonce,
-          account: address,
-        });
-      },
-    } satisfies ContractCaller;
   }
 }

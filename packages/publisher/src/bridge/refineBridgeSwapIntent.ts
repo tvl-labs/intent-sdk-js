@@ -51,7 +51,7 @@ import { buildRefinement } from "../intent/buildRefinement";
  * ```
  */
 export async function refineBridgeSwapIntent(
-  config: Pick<UserConfig, "chainId" | "contract" | "adapter" | "experimental" | "medusaURL">,
+  config: Pick<UserConfig, "contract" | "medusaURL">,
   author: Address,
   sourceToken: BaseToken,
   destinationToken: BaseToken,

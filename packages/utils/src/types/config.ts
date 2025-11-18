@@ -12,9 +12,8 @@ export interface UserConfig {
     assetReserves?: Record<HexChainId, Address>;
     mTokens?: MToken[];
     intentBook?: Address;
+    crossChainIntentBook?: Address;
     mTokenManager?: Address;
-    vault?: Address;
-    vaultTeller?: Address;
   };
   experimental?: UserConfigExperimental;
 }
@@ -25,16 +24,4 @@ export interface UserConfigExperimental {
    * @default false
    */
   ignoreSignIntentDomain?: boolean;
-  /**
-   * If true, the `deadline` field will replace the `validBefore` field and the `validAfter` field.
-   * @default false
-   * @deprecated
-   */
-  enabledDeadlineField?: boolean;
-  /**
-   * If true, the `ttl` field will replace the `validBefore` field and the `validAfter` field.
-   * @default false
-   * @deprecated
-   */
-  enabledTTLField?: boolean;
 }
