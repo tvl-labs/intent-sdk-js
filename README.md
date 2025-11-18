@@ -1,6 +1,6 @@
 # Khalani Intents JavaScript SDK
 
-A comprehensive JavaScript SDK for interacting with the Intents protocol, providing seamless cross-chain token bridging and intent-based trading capabilities.
+A comprehensive JavaScript SDK for interacting with Khalani intents, providing seamless cross-chain token swaps and intent-driven trading capabilities.
 
 ## Installation
 
@@ -35,7 +35,7 @@ defineConfig({
       rpcUrls: ["https://eth.llamarpc.com"],
     },
   ],
-  medusaURL: "https://medusa.arcadia.khalani.network",
+  medusaURL: "please contact our team for this URL",
   contract: {
     assetReserves: { "0x1": "0x..." },
     mTokens: [
@@ -68,7 +68,7 @@ const config = defineConfig({
 
 ## Packages
 
-- `@intents-sdk/publisher` — Core client for building and executing intents, MToken deposit/withdraw, and bridge flows.
+- `@intents-sdk/publisher` — Core client for building and executing intents, token deposit/withdraw, and cross-chain flows.
 - `@intents-sdk/utils` — Shared types, utilities, ABIs, Medusa helpers, and configuration (`defineConfig`).
 - `@intents-sdk/viem-adapter` — Wallet adapter for viem providers.
 - `@intents-sdk/wagmi-adapter` — Wallet adapter and utilities for wagmi.
@@ -91,7 +91,7 @@ The `WalletAdapter` wraps an EIP-1193 provider and adds smart contract interacti
 
 ### Intent
 
-An intent is a result predicate expression for future settlement transactions: a statement that encodes invariants about state transitions while remaining agnostic about how those transitions are achieved.
+An intent is a predicate expression over future settlement transactions: a statement that encodes invariants about state transitions while remaining agnostic about how those transitions are achieved.
 
 - Learn more: https://khalani.gitbook.io/khalani-docs/concepts/intents-and-solvers#id-1.-what-is-an-intent
 
@@ -101,7 +101,7 @@ MTokens are unified accounting units over tokens on any blockchain to enable cro
 
 ### chainId vs chains[]
 
-- `chainId` (number): Arcadia Hub ID for coordinating cross-chain operations.
+- `chainId` (number): Arcadia Chain ID for coordinating cross-chain operations.
 - `chains[]` (array): List of chain definitions your application supports, including RPC URLs, native currency details, and names. The SDK uses this to route requests to the correct network.
 
 ## Example
